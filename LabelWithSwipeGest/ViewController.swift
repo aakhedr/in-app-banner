@@ -69,9 +69,12 @@ class Helpers {
     }
     
     private func addSwipeRecognizer(_ slidingLabel: UILabel) {
-        let gesture = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(sender:)))
-        gesture.direction = .up
-        slidingLabel.addGestureRecognizer(gesture)
+        let gestureDirections: [UISwipeGestureRecognizerDirection] = [.up, .left, .right]
+        for direction in gestureDirections {
+            let gesture = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(sender:)))
+            gesture.direction = direction
+            slidingLabel.addGestureRecognizer(gesture)
+        }
     }
     
     private func addTapRecognizer(_ slidingLabel: UILabel) {
@@ -82,32 +85,24 @@ class Helpers {
     @objc private func handleTap(sender: UITapGestureRecognizer) {
         guard let slidingLabel = slidingLabel else { return }
         guard  let view = view else { return }
-        UIView.animate(withDuration: 1.0,
-                       delay: 0.0,
-                       options: [],
-                       animations: { slidingLabel.center.y -= view.bounds.height },
-                       completion: nil)
+        UIView.animate(withDuration: 1.0, animations: { slidingLabel.center.y -= view.bounds.height })
     }
     
     @objc private func handleSwipe(sender: UISwipeGestureRecognizer) {
         guard let slidingLabel = slidingLabel else { return }
         guard  let view = view else { return }
         if sender.direction == .up {
-            UIView.animate(withDuration: 1.0,
-                           delay: 0.0,
-                           options: [],
-                           animations: { slidingLabel.center.y -= view.bounds.height },
-                           completion: nil)
+            UIView.animate(withDuration: 1.0, animations: { slidingLabel.center.y -= view.bounds.height })
+        } else if sender.direction == .right {
+            UIView.animate(withDuration: 1.0, animations: { slidingLabel.frame.origin.x += view.bounds.width })
+        } else if sender.direction == .left {
+            UIView.animate(withDuration: 1.0, animations: { slidingLabel.frame.origin.x -= view.bounds.width })
         }
     }
     
     private func animateLabel() {
         guard let slidingLabel = slidingLabel else { return }
         guard  let view = view else { return }
-        UIView.animate(withDuration: 1.0,
-                       delay: 0.0,
-                       options: [],
-                       animations: { slidingLabel.center.y += view.bounds.height },
-                       completion: nil)
+        UIView.animate(withDuration: 1.0, animations: { slidingLabel.center.y += view.bounds.height })
     }
 }
