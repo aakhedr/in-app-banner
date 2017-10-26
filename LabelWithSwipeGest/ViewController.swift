@@ -82,7 +82,7 @@ class Helpers {
     @objc private func handleTap(sender: UITapGestureRecognizer) {
         guard let slidingLabel = sender.view as? UILabel else { return }
         guard let view = slidingLabel.superview else { return }
-        UIView.animate(withDuration: 1.0, animations: { slidingLabel.center.y -= view.bounds.height }, completion: nil)
+        UIView.animate(withDuration: 1.0, animations: { slidingLabel.center.y -= view.bounds.height })
     }
     
     @objc private func handleSwipe(sender: UISwipeGestureRecognizer) {
