@@ -21,15 +21,15 @@ class ViewController: UIViewController {
 
 class Helpers {
     static let sharedInstance = Helpers()
-    private var view: UIView? = nil
-    private var slidingLabel: UILabel? = nil
     
     fileprivate func showSlidingLabel(_ view: UIView, navigationController: UINavigationController?) {
-        initializeSlidingLabel("This is a test label", view: view, backgroundColor: .red, navigationController: navigationController)
-        animateLabel()
+        guard let slidingLabel = initializeSlidingLabel("This is a test label", view: view, backgroundColor: .red, navigationController: navigationController) else { return }
+        animateLabel(slidingLabel: slidingLabel, view: view)
     }
     
-    private func initializeSlidingLabel(_ message: String, view: UIView, backgroundColor: UIColor, navigationController: UINavigationController?) {
+    private func initializeSlidingLabel(_ message: String, view: UIView, backgroundColor: UIColor, navigationController: UINavigationController?) -> UILabel? {
+        guard let navController = navigationController else { return nil }
+        
         // width
         let width = view.bounds.width
         
@@ -40,10 +40,7 @@ class Helpers {
         let x = view.bounds.minX
         
         // y
-        var y = UIApplication.shared.statusBarFrame.height
-        if let navigationController = navigationController {
-            y += navigationController.navigationBar.bounds.size.height
-        }
+        let y = UIApplication.shared.statusBarFrame.height + navController.navigationBar.bounds.height
         
         let slidingLabel = UILabel(frame: CGRect(x: x, y: y, width: width, height: height))
         slidingLabel.layer.cornerRadius = 5.0
@@ -59,13 +56,13 @@ class Helpers {
         
         // Make it disappear from the view
         slidingLabel.center.y -= view.bounds.height
-        navigationController?.view.addSubview(slidingLabel)
+        navController.view.addSubview(slidingLabel)
         
-        self.view = view
-        self.slidingLabel = slidingLabel
         slidingLabel.isUserInteractionEnabled = true
         addSwipeRecognizer(slidingLabel)
         addTapRecognizer(slidingLabel)
+        
+        return slidingLabel
     }
     
     private func addSwipeRecognizer(_ slidingLabel: UILabel) {
@@ -83,14 +80,14 @@ class Helpers {
     }
     
     @objc private func handleTap(sender: UITapGestureRecognizer) {
-        guard let slidingLabel = slidingLabel else { return }
-        guard  let view = view else { return }
-        UIView.animate(withDuration: 1.0, animations: { slidingLabel.center.y -= view.bounds.height })
+        guard let slidingLabel = sender.view as? UILabel else { return }
+        guard let view = slidingLabel.superview else { return }
+        UIView.animate(withDuration: 1.0, animations: { slidingLabel.center.y -= view.bounds.height }, completion: nil)
     }
     
     @objc private func handleSwipe(sender: UISwipeGestureRecognizer) {
-        guard let slidingLabel = slidingLabel else { return }
-        guard  let view = view else { return }
+        guard let slidingLabel = sender.view as? UILabel else { return }
+        guard let view = slidingLabel.superview else { return }
         if sender.direction == .up {
             UIView.animate(withDuration: 1.0, animations: { slidingLabel.center.y -= view.bounds.height })
         } else if sender.direction == .right {
@@ -100,9 +97,7 @@ class Helpers {
         }
     }
     
-    private func animateLabel() {
-        guard let slidingLabel = slidingLabel else { return }
-        guard  let view = view else { return }
+    private func animateLabel(slidingLabel: UILabel, view: UIView) {
         UIView.animate(withDuration: 1.0, animations: { slidingLabel.center.y += view.bounds.height })
     }
 }
